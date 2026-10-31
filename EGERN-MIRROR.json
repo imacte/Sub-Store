@@ -1,34 +1,30 @@
 {
-  "created": "2026-10-31",
-  "owner": "imacte",
-  "branch": "egern",
-  "releaseAssets": [
+  "schema_version": 2,
+  "upstream": "sub-store-org/Sub-Store",
+  "tag": "2.44.2",
+  "source_commit": "15f460ad02066c6486eaa971ea6c5a2c1350c209",
+  "assets": [
     {
-      "project": "Sub-Store",
-      "version": "2.44.2",
-      "path": "release/2.44.2/cron-sync-artifacts.min.js",
-      "source": "https://github.com/sub-store-org/Sub-Store/releases/download/2.44.2/cron-sync-artifacts.min.js",
-      "sourceDigest": "sha256:264d52d7e56650e45588b953b8facb00ab84502b833a3ddf8c4e4ee394d26307"
-    },
-    {
-      "project": "Sub-Store",
-      "version": "2.44.2",
-      "path": "release/2.44.2/sub-store-0.min.js",
-      "source": "https://github.com/sub-store-org/Sub-Store/releases/download/2.44.2/sub-store-0.min.js",
-      "sourceDigest": "sha256:e7bfcaf78bc4ec2354e8a545211f8794f3137e8a91eea5cd7be7386cdf3a2f09"
-    },
-    {
-      "project": "Sub-Store",
-      "version": "2.44.2",
+      "name": "sub-store-1.min.js",
       "path": "release/2.44.2/sub-store-1.min.js",
       "source": "https://github.com/sub-store-org/Sub-Store/releases/download/2.44.2/sub-store-1.min.js",
-      "sourceDigest": "sha256:5818bc626d203a6bcedbe82d84a87fb25d0d917f78457beb2aa60ac5f48dc2b9"
+      "sourceDigest": "sha256:5818bc626d203a6bcedbe82d84a87fb25d0d917f78457beb2aa60ac5f48dc2b9",
+      "sha256": "sha256:5818bc626d203a6bcedbe82d84a87fb25d0d917f78457beb2aa60ac5f48dc2b9"
+    },
+    {
+      "name": "sub-store-0.min.js",
+      "path": "release/2.44.2/sub-store-0.min.js",
+      "source": "https://github.com/sub-store-org/Sub-Store/releases/download/2.44.2/sub-store-0.min.js",
+      "sourceDigest": "sha256:e7bfcaf78bc4ec2354e8a545211f8794f3137e8a91eea5cd7be7386cdf3a2f09",
+      "sha256": "sha256:e7bfcaf78bc4ec2354e8a545211f8794f3137e8a91eea5cd7be7386cdf3a2f09"
+    },
+    {
+      "name": "cron-sync-artifacts.min.js",
+      "path": "release/2.44.2/cron-sync-artifacts.min.js",
+      "source": "https://github.com/sub-store-org/Sub-Store/releases/download/2.44.2/cron-sync-artifacts.min.js",
+      "sourceDigest": "sha256:264d52d7e56650e45588b953b8facb00ab84502b833a3ddf8c4e4ee394d26307",
+      "sha256": "sha256:264d52d7e56650e45588b953b8facb00ab84502b833a3ddf8c4e4ee394d26307"
     }
   ],
-  "notes": [
-    "Upstream licenses and attribution are retained in each fork.",
-    "Compiled JavaScript release assets are copied without modification.",
-    "Egern YAML/module wrappers change only runtime resource URLs.",
-    "NeteaseAds.conf retains the author-maintained gist script URL."
-  ]
+  "update_policy": "Stable releases checked every six hours; assets are verified before module URLs are published."
 }
