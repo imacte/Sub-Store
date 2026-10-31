@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "upstream": "sub-store-org/Sub-Store",
-  "base_commit": "15f460ad02066c6486eaa971ea6c5a2c1350c209",
+  "base_commit": "deb8dc138f9ea3d190d9167d72217f53bfc50469",
   "role": "subscription-manager",
   "releases": [
     {

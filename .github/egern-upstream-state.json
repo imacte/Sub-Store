@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "upstream": "sub-store-org/Sub-Store",
+  "branch": "master",
+  "upstream_commit": "352f01b7091c99f4e219c44e4ec96f3288059843",
+  "mode": "merge-upstream",
+  "checked_at": "2026-10-31T11:20:38.543Z"
+}

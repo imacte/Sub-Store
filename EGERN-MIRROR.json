@@ -2,7 +2,7 @@
   "schema_version": 2,
   "upstream": "sub-store-org/Sub-Store",
   "tag": "2.44.2",
-  "source_commit": "15f460ad02066c6486eaa971ea6c5a2c1350c209",
+  "source_commit": "deb8dc138f9ea3d190d9167d72217f53bfc50469",
   "assets": [
     {
       "name": "sub-store-1.min.js",
