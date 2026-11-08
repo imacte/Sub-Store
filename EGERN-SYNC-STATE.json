@@ -1,23 +1,23 @@
 {
   "schema_version": 1,
   "upstream": "sub-store-org/Sub-Store",
-  "base_commit": "55d22096a18431021301162a1f8ee31cf7e1adb5",
+  "base_commit": "e905c1a9150e725c60dcadcf06b02610848fbbee",
   "role": "subscription-manager",
   "releases": [
     {
-      "tag": "2.44.5",
+      "tag": "2.44.6",
       "assets": [
         {
-          "path": "release/2.44.5/sub-store-1.min.js",
-          "sha256": "sha256:faf83904fb9b0544b716e848faee8f9123457ea3dad88cc8c36fd0fe975d6ce4"
+          "path": "release/2.44.6/sub-store-1.min.js",
+          "sha256": "sha256:521864e1735bedf7cfda02aa7e090ad42a2a5ba70ac06f0e79950c273ca26a33"
         },
         {
-          "path": "release/2.44.5/sub-store-0.min.js",
-          "sha256": "sha256:2dc821683247738106e464394b2ee30065b34a29ae180913f615a8601cd40289"
+          "path": "release/2.44.6/sub-store-0.min.js",
+          "sha256": "sha256:079a5da663b50d3470dca4458583e6ed319286f6e04950d93c0bf00753643152"
         },
         {
-          "path": "release/2.44.5/cron-sync-artifacts.min.js",
-          "sha256": "sha256:0b6781c3b4d2ae7e621ed40db932ae86914e938e95e561dec9b7481df921ffac"
+          "path": "release/2.44.6/cron-sync-artifacts.min.js",
+          "sha256": "sha256:e7690eca6557a2191393fd4904f4d56ac3b6641837d6785db3c8302f79271b69"
         }
       ]
     }
@@ -25,8 +25,8 @@
   "managed_paths": [
     "EGERN-MIRROR.json",
     "config/Surge.sgmodule",
-    "release/2.44.5/cron-sync-artifacts.min.js",
-    "release/2.44.5/sub-store-0.min.js",
-    "release/2.44.5/sub-store-1.min.js"
+    "release/2.44.6/cron-sync-artifacts.min.js",
+    "release/2.44.6/sub-store-0.min.js",
+    "release/2.44.6/sub-store-1.min.js"
   ]
 }
