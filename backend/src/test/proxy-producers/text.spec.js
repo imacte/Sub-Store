@@ -466,6 +466,63 @@ describe('Proxy text producers', function () {
         expect(output).to.equal(raw);
     });
 
+    it('round-trips Loon Tailscale with optional authentication and explicit settings', function () {
+        const proxies = ProxyUtils.parse(
+            [
+                'Tailnet=tailscale',
+                'Web Login = Tailscale, hostname="loon,device", exit-node=none',
+                'Exit=tailscale,control-url="https://headscale.example.com/?key=a,b",auth-key="test-key=",hostname=loon-device,exit-node=auto,accept-routes=false,accept-dns=true,magic-dns=false,path-mode=derp,mtu=1200,idle-session-timeout=0,ip-mode=v4-only ,server-dns="system,https://dns.example.com/dns-query",udp=false,block-quic=false',
+            ].join('\n'),
+        );
+        expect(proxies).to.deep.equal([
+            { name: 'Tailnet', type: 'tailscale', udp: true },
+            {
+                name: 'Web Login',
+                type: 'tailscale',
+                hostname: 'loon,device',
+                'exit-node': '',
+                udp: true,
+            },
+            {
+                name: 'Exit',
+                type: 'tailscale',
+                'control-url': 'https://headscale.example.com/?key=a,b',
+                'auth-key': 'test-key=',
+                hostname: 'loon-device',
+                'exit-node': 'auto:any',
+                'accept-routes': false,
+                'accept-dns': true,
+                'magic-dns': false,
+                'path-mode': 'derp',
+                mtu: 1200,
+                'idle-session-timeout': 0,
+                'ip-version': 'v4-only',
+                'server-dns': ['system', 'https://dns.example.com/dns-query'],
+                udp: false,
+                'block-quic': 'off',
+            },
+        ]);
+        expect(
+            ProxyUtils.parse(produceExternal('Loon', proxies)),
+        ).to.deep.equal(proxies);
+    });
+
+    it('exports a mihomo Tailscale node to Loon', function () {
+        const proxies = ProxyUtils.parse(`proxies:
+  - name: Tailnet
+    type: tailscale
+    control-url: https://headscale.example.com
+    auth-key: ""
+    exit-node: auto:any
+    accept-routes: false
+    udp: false
+    ip-version: ipv6-prefer`);
+
+        expect(produceExternal('Loon', proxies)).to.equal(
+            'Tailnet=tailscale,control-url="https://headscale.example.com",exit-node=auto,accept-routes=false,udp=false,ip-mode=prefer-v6',
+        );
+    });
+
     it('round-trips quoted and unquoted Loon server-dns for every protocol', function () {
         const inputs = [
             'SS=shadowsocks,ss.example.com,8388,aes-128-gcm,"secret"',
@@ -479,6 +536,7 @@ describe('Proxy text producers', function () {
             'HTTPS=https,https.example.com,443',
             'SOCKS5=socks5,socks.example.com,1080',
             'WG=wireguard,interface-ip=10.0.0.2,private-key=private-key,peers=[{endpoint=wg.example.com:51820,public-key=public-key,allowed-ips="0.0.0.0/0"}]',
+            'Tailnet=tailscale',
         ];
         const serverDns = [
             'system',
@@ -2338,7 +2396,7 @@ describe('Proxy text producers', function () {
     it('round-trips Surge VLESS with RAW, WebSocket, gRPC and REALITY', function () {
         const cases = [
             [
-                'ws=false,tls=true,flow=xtls-rprx-vision-udp443,encryption=none',
+                'ws=false,xhttp=false,xhttp-path=/unused,tls=true,flow=xtls-rprx-vision-udp443,encryption=none',
                 {
                     network: 'tcp',
                     tls: true,
@@ -2410,6 +2468,77 @@ describe('Proxy text producers', function () {
         );
     });
 
+    it('round-trips Surge VLESS XHTTP modes', function () {
+        const prefix = `XHTTP=vless,example.com,443,username=${UUID},xhttp=true,xhttp-path=/path,xhttp-host=cdn.example.com`;
+        for (const mode of [
+            undefined,
+            'auto',
+            'packet-up',
+            'stream-up',
+            'stream-one',
+        ]) {
+            const [proxy] = ProxyUtils.parse(
+                `${prefix}${mode ? `,xhttp-mode=${mode}` : ''},tls=true`,
+            );
+            const expected = {
+                network: 'xhttp',
+                tls: true,
+                'xhttp-opts': {
+                    path: '/path',
+                    host: 'cdn.example.com',
+                    mode: mode ?? 'auto',
+                },
+            };
+            expectSubset(proxy, expected);
+
+            for (const target of ['Surge', 'SurgeMac']) {
+                const output = produceExternal(target, proxy, {
+                    useMihomoExternal: true,
+                });
+                expect(output).to.equal(
+                    `${prefix},xhttp-mode=${mode ?? 'auto'},tls=true,sni="example.com"`,
+                );
+                expectSubset(ProxyUtils.parse(output)[0], expected);
+            }
+        }
+    });
+
+    it('produces Surge VLESS XHTTP from a share link without a mode', function () {
+        const extra = encodeURIComponent(
+            '{"headers":{"Host":"cdn.example.com"}}',
+        );
+        const [proxy] = ProxyUtils.parse(
+            `vless://${UUID}@example.com:443?type=xhttp&security=tls&path=%2Fpath%3Fa%3D1%2C2&extra=${extra}#XHTTP`,
+        );
+        const output = produceExternal('Surge', proxy);
+        expect(output).to.include(
+            ',xhttp=true,xhttp-path="/path?a=1,2",xhttp-host=cdn.example.com,tls=true',
+        );
+        expect(ProxyUtils.parse(output)[0]['xhttp-opts']).to.deep.equal({
+            path: '/path?a=1,2',
+            host: 'cdn.example.com',
+            mode: 'auto',
+        });
+    });
+
+    it('round-trips Surge VLESS encryption with XHTTP', function () {
+        const encryption = `mlkem768x25519plus.native.0rtt.100-111-1111.75-0-111.50-0-3333.${'Ab9_'.repeat(394)}a-A`;
+        const [proxy] = ProxyUtils.parse(
+            `enc = vless, a.com, 443, username=${UUID}, encryption=${encryption}, xhttp=true, xhttp-path=/path, xhttp-host=host.com, xhttp-mode=stream-one, tls=true`,
+        );
+        expect(proxy.encryption).to.equal(encryption);
+
+        for (const target of ['Surge', 'SurgeMac']) {
+            const output = produceExternal(target, proxy, {
+                useMihomoExternal: true,
+            });
+            expect(output).to.include(
+                `,xhttp-mode=stream-one,encryption=${encryption},tls=true`,
+            );
+            expect(ProxyUtils.parse(output)[0].encryption).to.equal(encryption);
+        }
+    });
+
     it('preserves gRPC authority from a VLESS share link without a service name', function () {
         const [proxy] = ProxyUtils.parse(
             `vless://${UUID}@edge.example.com:443?type=grpc&security=tls&authority=grpc.example.com#VLESS`,
@@ -2430,8 +2559,8 @@ describe('Proxy text producers', function () {
                 port: 443,
                 uuid: UUID,
                 tls: true,
-                network: 'xhttp',
-                'xhttp-opts': { path: '/xhttp', host: 'cdn.example.com' },
+                network: 'ws',
+                'ws-opts': { path: '/upgrade', 'v2ray-http-upgrade': true },
             },
             { useMihomoExternal: true, localPort: 16666 },
         );
