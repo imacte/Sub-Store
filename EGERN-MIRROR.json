@@ -1,29 +1,29 @@
 {
   "schema_version": 2,
   "upstream": "sub-store-org/Sub-Store",
-  "tag": "2.44.8",
-  "source_commit": "dcccb8ff9494d3feca7124a9a3f1452cc203cc1c",
+  "tag": "2.44.9",
+  "source_commit": "77917e0e699542c9e33eaf0b77a956969db20ac9",
   "assets": [
     {
       "name": "sub-store-1.min.js",
-      "path": "release/2.44.8/sub-store-1.min.js",
-      "source": "https://github.com/sub-store-org/Sub-Store/releases/download/2.44.8/sub-store-1.min.js",
-      "sourceDigest": "sha256:2f50da80d64413ca48a74dba1a0b37dfc2247228db3b1203556a7eaaf9df3b13",
-      "sha256": "sha256:2f50da80d64413ca48a74dba1a0b37dfc2247228db3b1203556a7eaaf9df3b13"
+      "path": "release/2.44.9/sub-store-1.min.js",
+      "source": "https://github.com/sub-store-org/Sub-Store/releases/download/2.44.9/sub-store-1.min.js",
+      "sourceDigest": "sha256:c80d44193e6bbf88409be294d9e458f6187f5ab0954aa77f6a0c5c192f835153",
+      "sha256": "sha256:c80d44193e6bbf88409be294d9e458f6187f5ab0954aa77f6a0c5c192f835153"
     },
     {
       "name": "sub-store-0.min.js",
-      "path": "release/2.44.8/sub-store-0.min.js",
-      "source": "https://github.com/sub-store-org/Sub-Store/releases/download/2.44.8/sub-store-0.min.js",
-      "sourceDigest": "sha256:b6743a43c123f8f0c526b406ea3f9bb39905baf0c72e771ee8546d8523fed005",
-      "sha256": "sha256:b6743a43c123f8f0c526b406ea3f9bb39905baf0c72e771ee8546d8523fed005"
+      "path": "release/2.44.9/sub-store-0.min.js",
+      "source": "https://github.com/sub-store-org/Sub-Store/releases/download/2.44.9/sub-store-0.min.js",
+      "sourceDigest": "sha256:51c0c091797cc46584d1b33c64b9f334dd874c139c9b936120d1356ebc710b7d",
+      "sha256": "sha256:51c0c091797cc46584d1b33c64b9f334dd874c139c9b936120d1356ebc710b7d"
     },
     {
       "name": "cron-sync-artifacts.min.js",
-      "path": "release/2.44.8/cron-sync-artifacts.min.js",
-      "source": "https://github.com/sub-store-org/Sub-Store/releases/download/2.44.8/cron-sync-artifacts.min.js",
-      "sourceDigest": "sha256:662b871c7b2dbe0023d21061e56044b7758ab679f441393c5ef6d1c2ef906be3",
-      "sha256": "sha256:662b871c7b2dbe0023d21061e56044b7758ab679f441393c5ef6d1c2ef906be3"
+      "path": "release/2.44.9/cron-sync-artifacts.min.js",
+      "source": "https://github.com/sub-store-org/Sub-Store/releases/download/2.44.9/cron-sync-artifacts.min.js",
+      "sourceDigest": "sha256:f5470b3343a96d3fd1e6a43c119e74320e24ade760222595569fedb27f2cb319",
+      "sha256": "sha256:f5470b3343a96d3fd1e6a43c119e74320e24ade760222595569fedb27f2cb319"
     }
   ],
   "update_policy": "Stable releases checked every six hours; assets are verified before module URLs are published."

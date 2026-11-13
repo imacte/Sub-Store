@@ -26,6 +26,8 @@
 
 📚 [文档/Doc](https://sub-store-org.github.io/doc) 🆕, [Wiki](https://github.com/sub-store-org/Sub-Store/wiki)
 
+> **Frontend update:** Access to `sub-store.vercel.app` on Vercel is restricted. For now, use the default frontend at [sub.xream.eu.org](https://sub.xream.eu.org), hosted on Cloudflare Pages.
+
 ## sub.store Domain Safety Notice
 
 ### Statement
@@ -38,7 +40,7 @@ If a request does not go through the rewrite, the data will be sent to the publi
 
 You can map `sub.store` to `127.0.0.1` or another local address to prevent accidental access to the public `sub.store`. However, ordinary users may still send requests to the public `sub.store` after switching or toggling configuration modules.
 
-1. It could, in theory, redirect users to a fake frontend. This is only a possibility and does not imply that the owner of `sub.store` would do this. Note: The official frontend is `https://sub-store.vercel.app`.
+1. It could, in theory, redirect users to a fake frontend. This is only a possibility and does not imply that the owner of `sub.store` would do this. The current official frontend is [sub.xream.eu.org](https://sub.xream.eu.org).
 2. It could receive user data from `sub.store`.
 
 This creates a data leakage risk.
@@ -60,8 +62,8 @@ sub.store = 127.0.0.1
 
 Sub-Store also supports a configurable browser CORS allowlist for the backend API. This does not change the module rewrite domain, but it limits which browser origins can read API responses through CORS.
 
-- Node/server deployments use `SUB_STORE_CORS_ALLOWED_ORIGINS`; the default is `https://sub-store.vercel.app,http://substore.stash,https://substore.stash`.
-- Proxy App modules use the `cors` module argument; the default is `https://sub-store.vercel.app,http://substore.stash,https://substore.stash`.
+- Node/server deployments use `SUB_STORE_CORS_ALLOWED_ORIGINS`; the default is `https://sub-store.vercel.app,http://substore.stash,https://substore.stash,https://sub.xream.eu.org`.
+- Proxy App modules use the `cors` module argument; the default is `https://sub-store.vercel.app,http://substore.stash,https://substore.stash,https://sub.xream.eu.org`.
 - Multiple origins can be separated by commas. Origins are matched exactly by scheme, host, and port. Set the value to `*` only when you accept the risk of any website reading the local backend through browser CORS.
 
 ## Node push notifications
