@@ -2,7 +2,7 @@
   "schema_version": 1,
   "upstream": "sub-store-org/Sub-Store",
   "branch": "master",
-  "upstream_commit": "d9896398feeb55c42fa3bd15f70104dd02b13899",
+  "upstream_commit": "a032bc1e024e5dd2a6f18e11fa4a662530dd86f5",
   "mode": "merge-upstream",
-  "checked_at": "2026-11-13T19:43:02.326Z"
+  "checked_at": "2026-11-14T06:24:15.535Z"
 }
