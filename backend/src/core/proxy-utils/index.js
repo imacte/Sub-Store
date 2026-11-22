@@ -69,6 +69,11 @@ function parse(raw) {
     // parse
     const lines = raw.split('\n');
     const proxies = [];
+    const appendParsed = (parsed) => {
+        for (const proxy of Array.isArray(parsed) ? parsed : [parsed]) {
+            proxies.push(lastParse(proxy));
+        }
+    };
     let lastParser;
 
     for (let line of lines) {
@@ -80,7 +85,7 @@ function parse(raw) {
         if (lastParser) {
             const [proxy, error] = tryParse(lastParser, line);
             if (!error) {
-                proxies.push(lastParse(proxy));
+                appendParsed(proxy);
                 success = true;
             }
         }
@@ -90,7 +95,7 @@ function parse(raw) {
             for (const parser of PROXY_PARSERS) {
                 const [proxy, error] = tryParse(parser, line);
                 if (!error) {
-                    proxies.push(lastParse(proxy));
+                    appendParsed(proxy);
                     lastParser = parser;
                     success = true;
                     $.info(`${parser.name} is activated`);
@@ -1088,7 +1093,7 @@ function lastParse(proxy) {
     if (
         ['hysteria2'].includes(proxy.type) &&
         proxy.obfs &&
-        !['salamander'].includes(proxy.obfs) &&
+        !['salamander', 'gecko'].includes(proxy.obfs) &&
         !proxy['obfs-password']
     ) {
         proxy['obfs-password'] = proxy.obfs;

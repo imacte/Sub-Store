@@ -60,6 +60,7 @@ describe('Proxy text producers', function () {
             vmess: { cipher: 'none', uuid: UUID },
             vless: { uuid: UUID },
             anytls: { password: 'secret' },
+            mieru: { username: 'user', password: 'secret' },
             hysteria2: { password: 'secret' },
             http: {},
             socks5: {},
@@ -489,6 +490,59 @@ describe('Proxy text producers', function () {
         expect(output).to.equal(raw);
     });
 
+    it('round-trips Quantumult X mieru TCP, TLS and Reality nodes', function () {
+        const tcp = 'mieru=example.com:8964, username=name, password=pwd';
+        const tls =
+            'mieru=example.com:443, username=name, password=pwd, over-tls=true, tls-host=apple.com';
+        const udp = 'udp-relay=true, udp-over-tcp=true';
+        const proxies = ProxyUtils.parse(
+            [
+                `${tcp}, tag=mieru-plain`,
+                `${tcp}, udp-relay=true, tag=mieru-relay-only`,
+                `${tcp}, udp-over-tcp=true, tag=mieru-uot-only`,
+                `${tcp}, fast-open=false, ${udp}, tag=mieru-udp`,
+                `${tls}, tls-verification=true, udp-relay=true, udp-over-tcp=false, tag=mieru-tls`,
+                `${tls}, reality-base64-pubkey=pubkey, reality-hex-shortid=0123456789abcdef, ${udp}, tag=mieru-reality`,
+            ].join('\n'),
+        );
+
+        expect(proxies.map((proxy) => proxy.udp)).to.deep.equal([
+            false,
+            false,
+            false,
+            true,
+            false,
+            true,
+        ]);
+        expectSubset(proxies[5], {
+            type: 'mieru',
+            username: 'name',
+            password: 'pwd',
+            tls: true,
+            sni: 'apple.com',
+            'reality-opts': {
+                'public-key': 'pubkey',
+                'short-id': '0123456789abcdef',
+            },
+        });
+
+        const output = produceExternal('QX', proxies);
+        expect(output).to.include('udp-relay=true,udp-over-tcp=true');
+        expect(ProxyUtils.parse(output)).to.deep.equal(proxies);
+    });
+
+    it('rejects invalid Quantumult X mieru udp-over-tcp values', function () {
+        for (const value of ['sp.v1', 'sp.v2', '1', 'true=invalid', '']) {
+            const input = `mieru=example.com:8964,username=name,password=pwd,udp-relay=true,udp-over-tcp=${value},tag=mieru`;
+            const { result, errors } = captureErrors(() =>
+                ProxyUtils.parse(input),
+            );
+
+            expect(result, JSON.stringify(value)).to.be.empty;
+            expect(errors).to.have.length(1);
+        }
+    });
+
     it('round-trips Quantumult X Hysteria 2 options', function () {
         const [proxy] = ProxyUtils.parse(
             'hysteria2=example.com:443, password=pwd, port-hopping=443, 20000-50000, port-hopping-interval=30, salamander-password=obfskey, tls-host=apple.com, tls-verification=false, download-bandwidth=100, udp-relay=false, tag=hy2',
@@ -523,6 +577,77 @@ describe('Proxy text producers', function () {
                 'hop-interval': ' ',
             }),
         ).not.to.include(',port-hopping');
+    });
+
+    it('round-trips Quantumult X Hysteria 2 Gecko obfuscation', function () {
+        const raw =
+            'hysteria2=example.com:443,password=pwd,gecko-password=obfskey,tls-host=apple.com,tls-verification=true,udp-relay=true,tag=hy2-05';
+        const [proxy] = ProxyUtils.parse(raw);
+
+        expectSubset(proxy, { obfs: 'gecko', 'obfs-password': 'obfskey' });
+        expect(produceExternal('QX', proxy)).to.equal(raw);
+    });
+
+    it('rejects short Quantumult X Hysteria 2 obfuscation passwords on import', function () {
+        for (const obfs of ['gecko', 'salamander']) {
+            const prefix = `hysteria2=example.com:443,password=pwd,${obfs}-password=`;
+            const input = ['x', '中', '', '中x']
+                .map((key) => `${prefix}${key},tag=hy2`)
+                .join('\n');
+            const { result } = captureErrors(() => ProxyUtils.parse(input));
+
+            expect(result).to.have.length(1);
+            expectSubset(result[0], { obfs, 'obfs-password': '中x' });
+        }
+    });
+
+    it('requires Quantumult X Hysteria 2 obfuscation passwords to be at least 4 bytes', function () {
+        for (const obfs of ['gecko', 'salamander']) {
+            const proxies = ['x', '中', '中x'].map((obfsPassword) => ({
+                type: 'hysteria2',
+                name: 'hy2',
+                server: 'example.com',
+                port: 443,
+                password: 'pwd',
+                obfs,
+                'obfs-password': obfsPassword,
+            }));
+            const { result, errors } = captureErrors(() =>
+                produceExternal('QX', proxies),
+            );
+
+            expect(result).to.equal(
+                `hysteria2=example.com:443,password=pwd,${obfs}-password=中x,tag=hy2`,
+            );
+            expect(errors).to.have.length(2);
+        }
+    });
+
+    it('rejects Quantumult X Hysteria 2 Gecko export without a key', function () {
+        const proxy = {
+            type: 'hysteria2',
+            name: 'hy2',
+            server: 'example.com',
+            port: 443,
+            password: 'pwd',
+            obfs: 'gecko',
+        };
+        const { result, errors } = captureErrors(() =>
+            ProxyUtils.produce([proxy], 'QX', 'external'),
+        );
+
+        expect(result).to.equal('');
+        expect(errors[0]).to.include('requires gecko-password');
+    });
+
+    it('rejects combined Gecko and Salamander in Quantumult X Hysteria 2', function () {
+        const { result } = captureErrors(() =>
+            ProxyUtils.parse(
+                'hysteria2=example.com:443,password=pwd,salamander-password=obfskey,gecko-password=obfskey,udp-relay=true,tag=hy2',
+            ),
+        );
+
+        expect(result).to.be.empty;
     });
 
     it('limits Quantumult X Hysteria 2 port hopping intervals to 5–3600 seconds', function () {
@@ -6978,6 +7103,44 @@ describe('Proxy text producers', function () {
             expect(parsed[0].password).to.equal(password);
         });
     }
+
+    it('round-trips Mieru through URI and V2Ray exports', function () {
+        const proxies = [
+            {
+                type: 'mieru',
+                name: 'Mieru #1',
+                server: '2001:db8::1',
+                username: 'user:name',
+                password: 'p@ss:w/rd#1?',
+                'port-range': '8000-8002',
+                transport: 'UDP',
+                multiplexing: 'MULTIPLEXING_HIGH',
+                'handshake-mode': 'HANDSHAKE_NO_WAIT',
+                'traffic-pattern': 'CI+/AQ==',
+            },
+            {
+                type: 'mieru',
+                name: 'Mieru TCP',
+                server: 'example.com',
+                username: 'user',
+                password: 'pass',
+                port: 443,
+            },
+        ];
+        const uri = produceExternal('URI', proxies);
+        const v2ray = produceExternal('V2Ray', proxies);
+
+        expect(uri.split('\n')).to.deep.equal([
+            'mierus://user%3Aname:p%40ss%3Aw%2Frd%231%3F@[2001:db8::1]?port=8000-8002&protocol=UDP&profile=Mieru%20%231&multiplexing=MULTIPLEXING_HIGH&handshake-mode=HANDSHAKE_NO_WAIT&traffic-pattern=CI%2B%2FAQ%3D%3D',
+            'mierus://user:pass@example.com?port=443&protocol=TCP&profile=Mieru%20TCP',
+        ]);
+        expect(Base64.decode(v2ray)).to.equal(uri);
+
+        const parsed = ProxyUtils.parse(v2ray);
+        expect(parsed).to.have.length(2);
+        expectSubset(parsed[0], proxies[0]);
+        expectSubset(parsed[1], { ...proxies[1], transport: 'TCP' });
+    });
 
     it('keeps every h2 host in URI VMess links', function () {
         const output = produceExternal('URI', {
